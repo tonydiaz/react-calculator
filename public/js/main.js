@@ -18945,12 +18945,40 @@ module.exports = require('./lib/React');
 // shim for using process in browser
 
 var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+(function () {
+  try {
+    cachedSetTimeout = setTimeout;
+  } catch (e) {
+    cachedSetTimeout = function () {
+      throw new Error('setTimeout is not defined');
+    }
+  }
+  try {
+    cachedClearTimeout = clearTimeout;
+  } catch (e) {
+    cachedClearTimeout = function () {
+      throw new Error('clearTimeout is not defined');
+    }
+  }
+} ())
 var queue = [];
 var draining = false;
 var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);
@@ -18966,7 +18994,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    var timeout = cachedSetTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -18983,7 +19011,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
+    cachedClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -18995,7 +19023,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
+        cachedSetTimeout(drainQueue, 0);
     }
 };
 
@@ -19036,10 +19064,40 @@ process.umask = function() { return 0; };
 
 },{}],159:[function(require,module,exports){
 var React = require('react');
+var Operation = require('./Operation.jsx');
 
 var App = React.createClass({
     displayName: 'App',
 
+    getInitialState: function () {
+        return {
+            value1: "",
+            value2: "",
+            result: ""
+        };
+    },
+    onClick: function (val, e) {
+        var result;
+
+        if (val === '+') {
+            result = Number(this.state.value1) + Number(this.state.value2);
+        } else if (val === '-') {
+            result = Number(this.state.value1) - Number(this.state.value2);
+        } else if (val === '*') {
+            result = Number(this.state.value1) * Number(this.state.value2);
+        } else if (val === '/') {
+            result = Number(this.state.value1) / Number(this.state.value2);
+        }
+
+        this.setState({ result: result });
+    },
+    onChange: function (val, e) {
+        // Make the object to set the state.
+        var obj = {};
+
+        obj[val] = e.target.value;
+        this.setState(obj);
+    },
     render: function () {
         return React.createElement(
             'div',
@@ -19052,8 +19110,34 @@ var App = React.createClass({
                     null,
                     'Simple Calculator'
                 ),
-                React.createElement('input', { type: 'number', placeholder: 'value1' }),
-                React.createElement('input', { type: 'number', placeholder: 'value2' })
+                React.createElement(
+                    'div',
+                    { className: 'row' },
+                    React.createElement('input', {
+                        className: 'col-md-6',
+                        onChange: this.onChange.bind(this, 'value1'),
+                        value: this.state.value1
+                    }),
+                    React.createElement('input', {
+                        className: 'col-md-6',
+                        onChange: this.onChange.bind(this, 'value2'),
+                        value: this.state.value2 })
+                ),
+                React.createElement('br', null),
+                React.createElement(
+                    'div',
+                    { className: 'row' },
+                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "+"), value: 'Add +' }),
+                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "-"), value: 'Subtract -' }),
+                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "*"), value: 'Multiply *' }),
+                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "/"), value: 'Divide /' })
+                ),
+                React.createElement('br', null),
+                React.createElement(
+                    'div',
+                    { className: 'row' },
+                    React.createElement('input', { className: 'col-md-6', value: this.state.result, type: 'text', disabled: true })
+                )
             )
         );
     }
@@ -19061,11 +19145,28 @@ var App = React.createClass({
 
 module.exports = App;
 
-},{"react":157}],160:[function(require,module,exports){
+},{"./Operation.jsx":160,"react":157}],160:[function(require,module,exports){
+var React = require('react');
+
+var Operation = React.createClass({
+    displayName: 'Operation',
+
+    render: function () {
+        return React.createElement(
+            'button',
+            { className: this.props.className + ' btn btn-primary', onClick: this.props.onClick },
+            this.props.value
+        );
+    }
+});
+
+module.exports = Operation;
+
+},{"react":157}],161:[function(require,module,exports){
 var React = require('react');
 var ReactDOM = require('react-dom');
 var App = require('./componenets/App.jsx');
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
-},{"./componenets/App.jsx":159,"react":157,"react-dom":1}]},{},[160]);
+},{"./componenets/App.jsx":159,"react":157,"react-dom":1}]},{},[161]);
