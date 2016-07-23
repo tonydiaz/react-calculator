@@ -19114,12 +19114,12 @@ var App = React.createClass({
                     'div',
                     { className: 'row' },
                     React.createElement('input', {
-                        className: 'col-md-6',
+                        className: 'col-xs-6',
                         onChange: this.onChange.bind(this, 'value1'),
                         value: this.state.value1
                     }),
                     React.createElement('input', {
-                        className: 'col-md-6',
+                        className: 'col-xs-6',
                         onChange: this.onChange.bind(this, 'value2'),
                         value: this.state.value2 })
                 ),
@@ -19127,16 +19127,16 @@ var App = React.createClass({
                 React.createElement(
                     'div',
                     { className: 'row' },
-                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "+"), value: 'Add +' }),
-                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "-"), value: 'Subtract -' }),
-                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "*"), value: 'Multiply *' }),
-                    React.createElement(Operation, { className: 'col-md-3', onClick: this.onClick.bind(this, "/"), value: 'Divide /' })
+                    React.createElement(Operation, { className: 'col-xs-3', onClick: this.onClick.bind(this, "+"), value: 'Add +' }),
+                    React.createElement(Operation, { className: 'col-xs-3', onClick: this.onClick.bind(this, "-"), value: 'Subtract -' }),
+                    React.createElement(Operation, { className: 'col-xs-3', onClick: this.onClick.bind(this, "*"), value: 'Multiply *' }),
+                    React.createElement(Operation, { className: 'col-xs-3', onClick: this.onClick.bind(this, "/"), value: 'Divide /' })
                 ),
                 React.createElement('br', null),
                 React.createElement(
                     'div',
                     { className: 'row' },
-                    React.createElement('input', { className: 'col-md-6', value: this.state.result, type: 'text', disabled: true })
+                    React.createElement('input', { className: 'col-xs-6', value: this.state.result, type: 'text', disabled: true })
                 )
             )
         );
